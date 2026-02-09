@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vectors</title>
+  <link rel="icon" type="image/png" href="SClogo.png" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- KaTeX for math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ]
+    });"
+  ></script>
+</head>
+
+<body>
+  <!-- Theme Toggle Button -->
+  <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+    </svg>
+  </button>
+
+  <div class="container">
+    <header>
+      <h1>Vectors</h1>
+      <p class="meta">Based on the lesson by Grant Sanderson (3Blue1Brown)</p>
+    </header>
+    <blockquote>
+      "The introduction of numbers as coordinates is an act of violence."
+      <br />&mdash; Hermann Weyl
+    </blockquote>
+
+    <article>
+      <!-- INTRO -->
+      <p>
+        The fundamental building block for linear algebra is the <span class="highlight">vector</span>,
+        so let's talk about why it's so important.
+      </p>
+
+      <div class="image">
+        <img src="images/img1.svg" alt="A vector drawn as an arrow in a coordinate grid" />
+        <p class="image-caption">A vector in a coordinate grid</p>
+      </div>
+
+      <p>
+        There are three primary interpretations of vectors:
+      </p>
+      <ul>
+        <li>The physics student perspective</li>
+        <li>The mathematician's perspective</li>
+        <li>The computer science perspective</li>
+      </ul>
+
+      <p>
+        Obviously we're only really concerned with the computer science perspective, but we'll
+        briefly touch on the other two so you won't get caught off guard in a technical discussion.
+      </p>
+
+      <!-- SECTION: Interpretations -->
+      <h2>Interpretations of Vectors</h2>
+
+      <h3>Physics Perspective</h3>
+      <p>
+        The physics student perspective is that vectors are
+        <span class="highlight">arrows pointing in space</span>. A given vector is defined by its
+        <span class="highlight">length</span> and the
+        <span class="highlight">direction</span> it's pointing, but as long as those two facts
+        remain the same, you can move it around and it's still the same vector.
+      </p>
+
+      <div class="image">
+        <img src="images/img2.svg" alt="Three perspectives on vectors: physics, CS, and math" />
+        <p class="image-caption">The physics perspective: vectors are arrows in space</p>
+      </div>
+
+      <p>
+        Below is a visualization showing how 2D vectors differ from 3D vectors:
+      </p>
+
+      <div class="image">
+        <img src="images/img3.png" alt="2D and 3D vectors side by side" />
+        <p class="image-caption">2D vectors live in a plane; 3D vectors live in space</p>
+      </div>
+
+      <h3>CS Perspective</h3>
+      <p>
+        The computer science perspective is that vectors are
+        <span class="highlight">ordered lists of numbers</span>.
+        For example, if you're comparing LLMs and the only features you care about are price (per million tokens) and context window size, you might model each LLM as a pair of numbers:
+      </p>
+
+      <div class="math-block">
+        $$\begin{bmatrix} \$3.00/\text{M tokens} \\ 128{,}000\;\text{ctx} \end{bmatrix}$$
+      </div>
+
+      <p>
+        Look familiar? That's because "vector" is really just a fancy word for "list"&mdash;and since there are two entries, it's a two-dimensional vector. One last thing to remember is that
+        <span class="highlight">order does matter here</span>.
+      </p>
+
+      <h3>Mathematician's Perspective</h3>
+      <p>
+        The mathematician's perspective is that a vector is anything you can
+        <span class="highlight">add</span> and <span class="highlight">scale</span> in a
+        well-behaved way. This matters to us because it's exactly what lets you perform
+        arithmetic operations on lists and have the results still make sense.
+      </p>
+
+      <div class="image">
+        <img src="images/img4.svg" alt="Abstract mathematician's view of vectors with addition and scaling" />
+        <p class="image-caption">The mathematician's view: vectors are anything you can add and scale</p>
+      </div>
+
+      <!-- SECTION: Coordinates -->
+      <h2>Thinking About Coordinate Systems</h2>
+
+      <p>
+        While many of you are already familiar with coordinate systems, it's worth walking through them
+        again to prepare for what's to come. In two dimensions, you have a horizontal line
+        called the <em>x-axis</em> and a vertical line called the <em>y-axis</em>.
+      </p>
+
+      <div class="image">
+        <img src="images/img5.svg" alt="The x-axis and y-axis" />
+        <p class="image-caption">The x-axis and y-axis</p>
+      </div>
+
+      <p>
+        The place where they intersect is the <span class="highlight">origin</span>, which you should think
+        of as the center of space and the root of all vectors.
+      </p>
+
+      <div class="image">
+        <img src="images/img6.svg" alt="The origin where the axes intersect" />
+        <p class="image-caption">The origin: center of space</p>
+      </div>
+
+      <p>
+        After choosing an arbitrary distance to represent a length of $1$, you make tick marks on each
+        axis spaced out by this distance.
+      </p>
+
+      <div class="image">
+        <img src="images/img7.svg" alt="Tick marks on the axes" />
+        <p class="image-caption">Tick marks define the unit length</p>
+      </div>
+
+      <p>
+        When we want to convey the idea of 2D space as a whole, we extend these tick marks to make
+        grid lines:
+      </p>
+
+      <div class="image">
+        <img src="images/img8.svg" alt="A full coordinate grid" />
+        <p class="image-caption">The full coordinate grid</p>
+      </div>
+
+      <p>
+        Let's establish a specific thought to have in mind when we say the word "vector." Given the geometric focus here, whenever we introduce a new topic involving vectors, think about
+        an <span class="highlight">arrow inside a coordinate system</span>, with its tail sitting at the origin.
+      </p>
+
+      <div class="image">
+        <img src="images/img9.svg" alt="A vector as an arrow from the origin" />
+        <p class="image-caption">A vector as an arrow rooted at the origin</p>
+      </div>
+
+      <p>
+        The coordinates of a vector are a pair of numbers that give instructions for how to get from the
+        tail of the vector (at the origin) to its tip. The first number and second number correspond
+        to the $x$-axis and $y$-axis respectively.
+      </p>
+
+      <div class="math-block">
+        $$\mathbf{v}=\begin{bmatrix} x \\ y \end{bmatrix}
+          \quad\Longleftrightarrow\quad
+          \text{walk } x \text{ units along } x\text{, then } y \text{ units along } y.$$
+      </div>
+
+      <p>
+        To distinguish vectors from points, the convention is to write this pair of numbers vertically
+        with square brackets around them. <span class="highlight">Every pair of numbers gives you one and only one vector, and every vector is associated with one and only one pair of numbers.</span>
+      </p>
+
+      <div class="image">
+        <img src="images/img10.svg" alt="Vector coordinates showing the walk from origin to tip" />
+        <p class="image-caption">Coordinates as walking instructions</p>
+      </div>
+
+      <p>
+        In three dimensions, you add a third axis called the $z$-axis, which is perpendicular to both
+        the $x$ and $y$ axes. Each vector is then associated with a list of three numbers:
+      </p>
+
+      <div class="math-block">
+        $$\mathbf{v}=\begin{bmatrix} x \\ y \\ z \end{bmatrix}$$
+      </div>
+
+      <div class="image">
+        <img src="images/img11.svg" alt="3D coordinate system with a vector triplet" />
+        <p class="image-caption">3D vectors use three coordinates</p>
+      </div>
+
+      <!-- SECTION: Operations -->
+      <h2>Vector Operations</h2>
+      <p>
+        Every topic in linear algebra centers around two operations:
+        <span class="highlight">vector addition</span> and
+        <span class="highlight">scalar multiplication</span>.
+        Luckily, both are relatively straightforward.
+      </p>
+
+      <!-- Addition -->
+      <h3>Addition</h3>
+      <p>
+        Let's say we have two vectors, one pointing up and a little to the right, and another
+        pointing to the right and a little bit down.
+      </p>
+
+      <div class="image">
+        <img src="images/img12.svg" alt="Two vectors before addition" />
+        <p class="image-caption">Two vectors ready to be added</p>
+      </div>
+
+      <p>
+        To add these two vectors, move the second vector so that its tail sits on the tip of the first one. Then draw a new vector from the tail of the first to where the tip of the second
+        now sits&mdash;that new vector is their <span class="highlight">sum</span>.
+      </p>
+
+      <div class="image">
+        <img src="images/img13.svg" alt="Tip-to-tail vector addition" />
+        <p class="image-caption">Vector addition: tip-to-tail</p>
+      </div>
+
+      <p>
+        This works because each vector represents a movement or step with a certain distance and direction. The example below shows two steps of $2$ and $5$ that add up to the total distance traveled of $7$.
+      </p>
+
+      <div class="image">
+        <img src="images/img14.svg" alt="Number line addition analogy" />
+        <p class="image-caption">Addition on a number line: same idea, one dimension</p>
+      </div>
+
+      <p>
+        In general, vector addition means matching up terms and adding them together:
+      </p>
+
+      <div class="math-block">
+        $$\begin{bmatrix} x_1 \\ y_1 \end{bmatrix} + \begin{bmatrix} x_2 \\ y_2 \end{bmatrix}
+          = \begin{bmatrix} x_1+x_2 \\ y_1+y_2 \end{bmatrix}$$
+      </div>
+
+      <!-- Scaling -->
+      <h3>Scaling</h3>
+      <p>
+        The other fundamental vector operation is multiplication by a number. If you take the number $2$ and multiply it by a given vector, you stretch that vector so that it's twice as long as it was before.
+      </p>
+
+      <div class="image">
+        <img src="images/img17.svg" alt="Scaling a vector by 2" />
+        <p class="image-caption">Scaling by $2$: the vector doubles in length</p>
+      </div>
+
+      <p>
+        If you multiply a vector by $\frac{1}{3}$, you squish it down so that it's one-third its original length. If you multiply by a negative number like $-1.5$, the vector gets flipped
+        around, then stretched out by a factor of $1.5$.
+      </p>
+
+      <div class="image">
+        <img src="images/img18.svg" alt="Scaling a vector by one-third" />
+        <p class="image-caption">Scaling by $\frac{1}{3}$: the vector shrinks</p>
+      </div>
+
+      <p>
+        This process of stretching, squishing, and sometimes reversing direction is called <span class="highlight">"scaling."</span> The number you are multiplying the vector by is called the <span class="highlight">"scalar."</span>
+      </p>
+
+      <p>
+        Numerically speaking, scaling multiplies each component:
+      </p>
+
+      <div class="math-block">
+        $$c\,\mathbf{v} = c\begin{bmatrix} x \\ y \end{bmatrix}
+          = \begin{bmatrix} cx \\ cy \end{bmatrix}$$
+      </div>
+
+      <div class="math-block">
+        $$\frac{1}{3}\begin{bmatrix} 12 \\ 9 \end{bmatrix}
+          = \begin{bmatrix} 4 \\ 3 \end{bmatrix}$$
+      </div>
+
+      <p>
+        This will come up later in more detail when we discuss <span class="highlight">dot products</span>.
+      </p>
+
+      <!-- CONCLUSION -->
+      <h2>Conclusion</h2>
+
+      <p>
+        Whether you think of vectors as arrows or lists of numbers, the main thing to remember is that they give us a structured way to represent and transform data. The two main ways we transform this data are <span class="highlight">vector addition and scalar multiplication</span>.
+      </p>
+    </article>
+
+    <footer>
+      <p>
+        Content adapted from 3Blue1Brown's <em>Essence of Linear Algebra</em> series (Chapter 1).
+      </p>
+      <p>&copy; 2026 Grant Sanderson</p>
+    </footer>
+  </div>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    (function () {
+      const toggle = document.querySelector(".theme-toggle");
+      const root = document.documentElement;
+
+      // Check for saved preference, otherwise use system preference
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) root.setAttribute("data-theme", savedTheme);
+
+      toggle.addEventListener("click", () => {
+        const currentTheme = root.getAttribute("data-theme");
+        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+        let newTheme;
+        if (currentTheme === "dark") newTheme = "light";
+        else if (currentTheme === "light") newTheme = "dark";
+        else newTheme = systemPrefersDark ? "light" : "dark";
+
+        root.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+      });
+    })();
+  </script>
+</body>
+</html>
