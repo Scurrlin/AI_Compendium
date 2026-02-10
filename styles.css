@@ -195,6 +195,8 @@ li {
     background-color: var(--highlight-bg);
     padding: 2px 6px;
     border-radius: 4px;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
 }
 
 /* Theme Toggle Button */
