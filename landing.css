@@ -170,7 +170,7 @@ header p {
 .topic-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px var(--shadow-color);
-    border-color: #E84A2F;
+    border-color: var(--border-light);
 }
 
 .topic-card:active {
