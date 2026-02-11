@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Large Language Models Explained Briefly</title>
+  <link rel="icon" type="image/png" href="parsity.png" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../styles.css" />
+
+  <!-- KaTeX for math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ]
+    });"
+  ></script>
+</head>
+
+<body>
+  <!-- Theme Toggle Button -->
+  <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+    </svg>
+  </button>
+
+  <div class="container">
+    <header>
+      <h1>Large Language Models Explained Briefly</h1>
+      <p class="meta">Based on the lesson by Grant Sanderson (3Blue1Brown)</p>
+    </header>
+
+    <article>
+      <!-- INTRO -->
+      <p>
+        Imagine you find a short movie script describing a scene between a person and their AI assistant.
+        The script has what the person asks, but the AI's response has been torn off.
+      </p>
+      <div class="image">
+        <img src="images/img1.png" alt="A dialogue script where the assistant's reply is missing" />
+        <p class="image-caption">A script with the AI assistant's response torn off</p>
+      </div>
+
+      <p>
+        Now imagine you have a machine that takes in text and predicts the next word. You could finish
+        the script by feeding in what you have, grabbing the prediction, and repeating until the
+        dialogue is complete.
+      </p>
+      <div class="image">
+        <img src="images/img2.png" alt="Machine predicts the word 'used' as the next word" />
+        <p class="image-caption">The machine predicts the next word: "used"</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img3.png" alt="Machine predicts the word 'to' as the next word" />
+        <p class="image-caption">Fed the growing text, the machine now predicts: "to"</p>
+      </div>
+
+      <p>
+        When you interact with a chatbot, this is exactly what's happening.
+      </p>
+
+      <!-- SECTION: What is an LLM? -->
+      <h2>What Is an LLM?</h2>
+      <p>
+        A <span class="highlight">large language model</span> (LLM) is just a mathematical function
+        that predicts the next word for any piece of text. Instead of committing to a single answer,
+        <span class="highlight">it assigns a probability to every possible next word.</span>
+      </p>
+      <div class="image">
+        <img src="images/img4.png" alt="Probability distribution over next-word options" />
+        <p class="image-caption">The model assigns probabilities to many possible next words</p>
+      </div>
+
+      <p>
+        To build a chatbot, you start with some text describing an interaction between a user and a
+        hypothetical AI assistant.
+      </p>
+      <div class="image">
+        <img src="images/img5.png" alt="System text describing the AI assistant interaction" />
+        <p class="image-caption">A description framing the interaction between user and AI assistant</p>
+      </div>
+
+      <p>
+        Then you append whatever the user types.
+      </p>
+      <div class="image">
+        <img src="images/img6.png" alt="User input appended to the context" />
+        <p class="image-caption">The user's input is appended to the context</p>
+      </div>
+
+      <p>
+        The model repeatedly predicts the next word this hypothetical assistant would say, and that's
+        what gets shown to you. It doesn't always pick the most likely word as a bit of randomness
+        makes the output sound more natural. <span class="highlight">That's why the same prompt can give you a different
+        answer each time.</span>
+      </p>
+      <div class="image">
+        <img src="images/img7.png" alt="Model selects word from probability distribution" />
+        <p class="image-caption">The model samples from its probability distribution to generate a response</p>
+      </div>
+
+      <!-- SECTION: How does it learn? -->
+      <h2>How Does an LLM Predict the Next Word?</h2>
+      <p>
+        The model learns to make predictions by processing <span class="highlight">an enormous amount of text, most of it
+        pulled from the internet.</span>
+      </p>
+      <div class="image">
+        <img src="images/img8.png" alt="Massive training data from the internet" />
+        <p class="image-caption">LLMs are trained on enormous amounts of text from the internet</p>
+      </div>
+
+      <p>
+        Think of training as tuning the dials on a really big machine. A language model's behavior is
+        entirely determined by continuous values called <span class="highlight">parameters
+        (or weights).</span> Change the parameters, change the predictions.
+      </p>
+      <div class="image">
+        <img src="images/img9.png" alt="Parameters as tunable dials controlling model behavior" />
+        <p class="image-caption">Model behavior is determined by tunable parameters (weights)</p>
+      </div>
+
+      <p>
+        What puts the "large" in large language model? These things can have <span class="highlight">hundreds of billions
+        of parameters.</span>
+      </p>
+      <div class="image">
+        <img src="images/img10.png" alt="Hundreds of billions of parameters" />
+        <p class="image-caption">Large language models can have hundreds of billions of parameters</p>
+      </div>
+
+      <h3>Training: Predict the Last Word</h3>
+      <p>
+        No human sets these parameters by hand. The responses start out random (think word salad nonsense), but 
+        slowly refine their outputs through repeated exposure to text examples. You feed the model all but the
+        last word of a text, then compare its prediction against the real answer.
+      </p>
+      <div class="image">
+        <img src="images/img11.png" alt="Model sees all but last word and tries to predict it" />
+        <p class="image-caption">Training step: predict the next token, compare to the true last word</p>
+      </div>
+
+      <h3>Backpropagation Updates the Weights</h3>
+      <p>
+        An algorithm called <span class="highlight">backpropagation</span> then tweaks every parameter
+        so the model becomes a little more likely to pick the right word and a little less likely 
+        to pick the wrong ones.
+      </p>
+      <div class="image">
+        <img src="images/img12.png" alt="Backpropagation adjusting parameters to improve predictions" />
+        <p class="image-caption">Backpropagation nudges weights to reduce prediction error</p>
+      </div>
+
+      <p>
+        Repeat this for trillions of examples and the model can start making reasonable predictions on 
+        text it's never seen before. Given hundreds of billions of parameters and that much data, 
+        the computation involved is staggering.
+      </p>
+
+      <!-- SECTION: Pretraining and RLHF -->
+      <h2>Pretraining and RLHF</h2>
+      <p>
+        This process is called <span class="highlight">pre-training,</span> and it's only part of
+        the story. Auto-completing random internet text is a very different goal from being a helpful
+        AI assistant.
+      </p>
+      <div class="image">
+        <img src="images/img13.png" alt="Pre-training stage" />
+        <p class="image-caption">Pre-training: learning next-word prediction from internet text</p>
+      </div>
+
+      <p>
+        To bridge the gap, chatbots undergo
+        <span class="highlight">reinforcement learning with human feedback (RLHF).</span> Human
+        workers flag unhelpful or problematic outputs, and their corrections further tune the model's
+        parameters toward the kind of responses people actually want.
+      </p>
+      <div class="image">
+        <img src="images/img14.png" alt="Reinforcement learning with human feedback" />
+        <p class="image-caption">RLHF: human feedback steers the model toward preferred behavior</p>
+      </div>
+
+      <!-- SECTION: GPUs and parallelism -->
+      <h2>Why GPUs Matter</h2>
+      <p>
+        All that computation is only possible because of special chips designed to run many
+        operations in parallel called <span class="highlight">GPUs.</span>
+      </p>
+      <div class="image">
+        <img src="images/img15.png" alt="GPU parallel computation" />
+        <p class="image-caption">GPUs enable massive parallel computation</p>
+      </div>
+
+      <p>
+        But not every model can take full advantage of them. Before 2017, most language models
+        processed text one word at a time. Then a team at Google introduced a new architecture:
+        the <span class="highlight">transformer.</span>
+      </p>
+      <div class="image">
+        <img src="images/img16.png" alt="Google's Transformer paper from 2017" />
+        <p class="image-caption">The transformer architecture was introduced by Google researchers in 2017</p>
+      </div>
+
+      <p>
+        Instead of reading text from start to finish, <span class="highlight">transformers process it all at once in parallel.</span>
+      </p>
+
+      <!-- SECTION: Transformers -->
+      <h2>Transformers</h2>
+
+      <h3>Step 1: Turn Words into Vectors</h3>
+      <p>
+        The first step inside a transformer is to associate each word with a long list of numbers called
+        an <span class="highlight">embedding.</span> Training only works with continuous values, so
+        language has to be encoded numerically. <span class="highlight">Each embedding needs to capture the meaning of its word.</span>
+      </p>
+      <div class="image">
+        <img src="images/img17.png" alt="Tokens mapped to embedding vectors" />
+        <p class="image-caption">Token embeddings: words are mapped to lists of numbers (vectors)</p>
+      </div>
+
+      <h3>Attention Refines Meaning Using Context</h3>
+      <p>
+        What makes transformers special is an operation called <span class="highlight">attention.</span>
+        It lets every embedding talk to every other embedding, refining their meanings based on
+        context in parallel. For example, the numbers encoding "bank" get updated when the
+        surrounding words are "river" and "jumped into," nudging the representation toward
+        <em>riverbank</em>.
+      </p>
+      <div class="image">
+        <img src="images/img18.png" alt="Attention modifies word representations based on context" />
+        <p class="image-caption">Attention contextualizes word meanings (e.g. "bank" near "river")</p>
+      </div>
+
+      <h3>Feedforward Network and Repeated Layers</h3>
+      <p>
+        Transformers also include a <span class="highlight">feedforward neural network (MLP),</span>
+        which gives the model extra capacity to store patterns about language. Data flows through many
+        alternating layers of attention and MLP blocks, and with each pass the embeddings get richer.
+      </p>
+      <div class="image">
+        <img src="images/img19.png" alt="Repeated blocks of attention and MLP across many layers" />
+        <p class="image-caption">Data flows through many layers of attention + MLP blocks</p>
+      </div>
+
+      <h3>Final Step: Predict the Next Token</h3>
+      <p>
+        At the end, one final function operates on the last vector in the sequence. By now it's been
+        enriched by all the surrounding context and everything the model learned during training. <span class="highlight">The
+        result is a probability for every possible next word.</span>
+      </p>
+      <div class="image">
+        <img src="images/img20.png" alt="Final prediction: probability distribution over next tokens" />
+        <p class="image-caption">The final output: a probability for every possible next word</p>
+      </div>
+
+      <p>
+        Researchers design the framework, but <span class="highlight">the specific behavior is emergent.</span> It's a product of
+        how those hundreds of billions of parameters shake out during training. That's what makes it
+        so hard to understand <em>why</em> the model says what it says.
+      </p>
+
+      <!-- SECTION: Conclusion -->
+      <h2>Conclusion</h2>
+      <p>
+        At the end of the day, an LLM is a <span class="highlight">next-word prediction engine.</span> It's a massive mathematical
+        function whose billions of parameters were tuned on internet-scale text, then refined with
+        human feedback to be genuinely useful. Everything else (the chat interface, the seemingly
+        intelligent responses) is just that prediction step on repeat.
+      </p>
+    </article>
+
+    <footer>
+      <p>
+        Content adapted from 3Blue1Brown's Deep Learning series (Chapter 4).
+      </p>
+      <p>&copy; 2026 Grant Sanderson</p>
+    </footer>
+  </div>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    (function () {
+      const toggle = document.querySelector(".theme-toggle");
+      const root = document.documentElement;
+
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) root.setAttribute("data-theme", savedTheme);
+
+      toggle.addEventListener("click", () => {
+        const currentTheme = root.getAttribute("data-theme");
+        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+        let newTheme;
+        if (currentTheme === "dark") newTheme = "light";
+        else if (currentTheme === "light") newTheme = "dark";
+        else newTheme = systemPrefersDark ? "light" : "dark";
+
+        root.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+      });
+    })();
+  </script>
+</body>
+</html>

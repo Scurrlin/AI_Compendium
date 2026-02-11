@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parsity AI Compendium</title>
+  <link rel="icon" type="image/png" href="parsity.png" />
+  <link rel="stylesheet" href="landing.css" />
+</head>
+
+<body>
+  <!-- Theme Toggle Button -->
+  <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+    </svg>
+  </button>
+
+  <div class="container">
+    <header>
+      <h1>Parsity AI Compendium</h1>
+      <p>A visual guide to the building blocks of AI</p>
+    </header>
+
+    <nav class="topic-grid">
+      <a class="topic-card" href="vectors/index.html">
+        <span class="topic-number">1</span>
+        <span class="topic-name">Vectors</span>
+      </a>
+      <a class="topic-card" href="span/index.html">
+        <span class="topic-number">2</span>
+        <span class="topic-name">Linear Transformations</span>
+      </a>
+      <a class="topic-card" href="dot-products/index.html">
+        <span class="topic-number">3</span>
+        <span class="topic-name">Dot-Products</span>
+      </a>
+      <a class="topic-card" href="mini-llm/index.html">
+        <span class="topic-number">4</span>
+        <span class="topic-name">LLMs Explained</span>
+      </a>
+      <a class="topic-card" href="gpt/index.html">
+        <span class="topic-number">5</span>
+        <span class="topic-name">GPTs</span>
+      </a>
+      <a class="topic-card" href="attention/index.html">
+        <span class="topic-number">6</span>
+        <span class="topic-name">Attention</span>
+      </a>
+    </nav>
+
+    <footer>
+      <p>&copy; 2026 Parsity</p>
+    </footer>
+  </div>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    (function () {
+      const toggle = document.querySelector(".theme-toggle");
+      const root = document.documentElement;
+
+      // Check for saved preference, otherwise use system preference
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) root.setAttribute("data-theme", savedTheme);
+
+      toggle.addEventListener("click", () => {
+        const currentTheme = root.getAttribute("data-theme");
+        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+        let newTheme;
+        if (currentTheme === "dark") newTheme = "light";
+        else if (currentTheme === "light") newTheme = "dark";
+        else newTheme = systemPrefersDark ? "light" : "dark";
+
+        root.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+      });
+    })();
+  </script>
+</body>
+</html>

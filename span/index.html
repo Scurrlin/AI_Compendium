@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linear Combinations, Span, and Basis</title>
+  <link rel="icon" type="image/png" href="parsity.png" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../styles.css" />
+
+  <!-- KaTeX for math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ]
+    });"
+  ></script>
+</head>
+
+<body>
+  <!-- Theme Toggle Button -->
+  <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+    </svg>
+  </button>
+
+  <div class="container">
+    <header>
+      <h1>Linear Combinations, Span, and Basis</h1>
+      <p class="meta">Based on the lesson by Grant Sanderson (3Blue1Brown)</p>
+    </header>
+
+    <article>
+      <!-- INTRO -->
+      <blockquote>
+        "Mathematics requires a small dose, not of genius, but of an imaginative freedom which, in a larger dose, would be insanity."
+        <br />— Angus K. Rodgers
+      </blockquote>
+
+      <p>
+        I couldn't agree more, Angus.
+      </p>
+
+      <div class="image">
+        <img src="images/img1.svg" alt="Recap of vector coordinates as pairs of numbers" />
+        <p class="image-caption">Vectors described by coordinate pairs</p>
+      </div>
+
+      <p>
+        Now it's possible that vector coordinates were already familiar to you, but there's another interesting way to think about them. When you have a pair of numbers meant to describe a vector, like $(3, -2)$, you can think of each coordinate as a <span class="highlight">scalar.</span>
+      </p>
+
+      <div class="image">
+        <img src="images/img2.svg" alt="Vector coordinates interpreted as scalars" />
+        <p class="image-caption">Each coordinate is a scalar that stretches or squishes</p>
+      </div>
+
+      <p>
+        In the $xy$-coordinate system, there are two special vectors. The one pointing to the right with length $1$, commonly called <span class="highlight">"i-hat" $\hat{\imath}$, or "the unit vector in the $x$-direction."</span> The other one is pointing straight up with length $1$, commonly called <span class="highlight">"j-hat" $\hat{\jmath}$, or "the unit vector in the $y$-direction."</span>
+      </p>
+
+      <div class="image">
+        <img src="images/img3.svg" alt="Unit vectors i-hat and j-hat" />
+        <p class="image-caption">The unit vectors $\hat{\imath}$ and $\hat{\jmath}$</p>
+      </div>
+
+      <p>
+        Now, think of the $x$-coordinate as a scalar that scales $\hat{\imath}$, stretching it by a factor of $3$, and the $y$-coordinate as a scalar that scales $\hat{\jmath}$, flipping it and stretching it by a factor of $2$. In this sense, <span class="highlight">the vector that these coordinates describe is the sum of two scaled vectors.</span>
+      </p>
+
+      <div class="image">
+        <img src="images/img4.svg" alt="Vector as sum of scaled unit vectors" />
+        <p class="image-caption">The vector $(3, -2)$ as $3\hat{\imath} + (-2)\hat{\jmath}$</p>
+      </div>
+
+      <p>
+        Those two vectors $\hat{\imath}$ and $\hat{\jmath}$ have a special name: together they are called the <span class="highlight">basis</span> of the coordinate system. What this means is that when you think about coordinates as scalars, the basis vectors are what those scalars actually scale.
+      </p>
+
+      <div class="image">
+        <img src="images/img5.svg" alt="Coordinates as scalars of basis vectors" />
+        <p class="image-caption">Coordinates are scalars applied to the basis vectors</p>
+      </div>
+
+      <p>
+        There's also a more technical definition of basis, but we'll get to that later. Framing our familiar coordinate system in terms of these two special basis vectors raises an interesting and subtle point: <span class="highlight">we could choose a different pair of basis vectors and get a perfectly reasonable new coordinate system.</span>
+      </p>
+
+      <!-- SECTION: Choosing Different Basis Vectors -->
+      <h2>Choosing Different Basis Vectors</h2>
+
+      <p>
+        For example, take some vector pointing up and to the right, along with a vector pointing down and to the right.
+      </p>
+
+      <div class="image">
+        <img src="images/img6.svg" alt="Two non-standard basis vectors" />
+        <p class="image-caption">A different pair of basis vectors</p>
+      </div>
+
+      <p>
+        Now think about all the different vectors you can make by picking two scalars, scaling each basis vector, and adding them up. How many could you create?
+      </p>
+
+      <div class="image">
+        <img src="images/img7.svg" alt="Span example with different basis, first combination" />
+        <p class="image-caption">One linear combination of the new basis</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img8.svg" alt="Span example with different basis, second combination" />
+        <p class="image-caption">Another linear combination of the new basis</p>
+      </div>
+
+      <p>
+        <span class="highlight">It turns out you can make <em>every</em> possible two-dimensional vector this way,</span> and it's a good puzzle to think about why. A different pair of basis vectors still gives you a valid way to go back and forth between numbers and vectors, but the mapping changes. The same vector in space gets <em>different</em> coordinates depending on which basis you use:
+      </p>
+
+      <div class="math-block">
+        $$\begin{bmatrix}-0.8\\1.3\end{bmatrix} \neq \begin{bmatrix}3.1\\-2.9\end{bmatrix}$$
+      </div>
+
+      <div class="image">
+        <img src="images/img9.svg" alt="Same vector, different coordinates under different bases" />
+        <p class="image-caption">The same vector gets different coordinates under a different basis</p>
+      </div>
+
+      <p>
+        The takeaway: <span class="highlight">coordinates are only meaningful relative to a particular basis.</span> Change the basis, change the numbers.
+      </p>
+
+      <!-- SECTION: Linear Combinations -->
+      <h2>Linear Combinations</h2>
+
+      <p>
+        Any time you're scaling two vectors and adding them like this, it's called a <span class="highlight">linear combination</span> of those two vectors.
+      </p>
+
+      <div class="image">
+        <img src="images/img10.svg" alt="Linear combination with description" />
+        <p class="image-caption">A linear combination: scale then add</p>
+      </div>
+
+      <p>
+        Why "linear"? When you multiply every real number by a vector, <span class="highlight">the result is a line through the origin.</span> Each vector defines its own line.
+      </p>
+
+      <div class="image">
+        <img src="images/img11.svg" alt="Scalar multiplication produces lines through the origin" />
+        <p class="image-caption">Each vector defines a line through the origin</p>
+      </div>
+
+      <p>
+        A linear combination of two vectors is just a way of combining these two lines. For most pairs of vectors, if you let both scalars extend indefinitely, you can reach every point on the plane.
+      </p>
+
+      <div class="image">
+        <img src="images/img12.svg" alt="Scalars ranging freely span the full plane" />
+        <p class="image-caption">Letting both scalars run freely reaches every point on the plane</p>
+      </div>
+
+      <p>
+        However, if your two original vectors happen to line up, the lines produced by the scalar multiplication will be the same line, so adding them together can't yield a vector outside of that line.
+      </p>
+
+      <div class="image">
+        <img src="images/img13.svg" alt="Collinear vectors only span a line" />
+        <p class="image-caption">Collinear vectors are stuck on the same line</p>
+      </div>
+
+      <p>
+        There's a third possibility too: both your vectors could be the $\mathbf{0}$ vector, in which case you'll just be stuck at the origin.
+      </p>
+
+      <!-- SECTION: Span -->
+      <h2>Span</h2>
+
+      <p>
+        The set of all possible vectors you can reach with linear combinations of a given pair of vectors is called the <span class="highlight">span</span> of those two vectors. The span of most pairs of 2D vectors is all of 2D space. <span class="highlight">When they line up, the span collapses to a single line.</span>
+      </p>
+
+      <div class="math-block">
+        $$\text{span}(\vec{\mathbf{v}}, \vec{\mathbf{w}}) = \{a\vec{\mathbf{v}} + b\vec{\mathbf{w}} \mid a,b \in \mathbb{R}\}$$
+      </div>
+
+      <div class="image">
+        <img src="images/img14.svg" alt="Span of a linear combination" />
+        <p class="image-caption">The span is all vectors reachable by linear combinations</p>
+      </div>
+
+      <!-- SECTION: Vectors vs Points -->
+      <h2>Vectors vs Points</h2>
+
+      <p>
+        When you're thinking about a single vector, it's best to think of it as an arrow, but what about multiple vectors? When you're dealing with a whole collection of vectors (say, every vector whose tip sits on a line), <span class="highlight">it's easier to just think about their endpoints.</span>
+      </p>
+
+      <div class="image">
+        <img src="images/img15.png" alt="A vector as an arrow" />
+        <p class="image-caption">A single vector as an arrow</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img16.png" alt="Vectors as points on a line" />
+        <p class="image-caption">A collection of vectors represented as points on a line</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img17.png" alt="All 2D vectors as points filling the plane" />
+        <p class="image-caption">All 2D vectors conceptualized as points filling the plane</p>
+      </div>
+
+      <!-- SECTION: Span in 3D -->
+      <h2>Span in 3D</h2>
+
+      <p>
+        The idea of span gets more interesting if we start thinking about vectors in three-dimensional space. For example, if you take two vectors in 3D that are not pointing in the same direction, what does it mean to take their span?
+      </p>
+
+      <div class="image">
+        <img src="images/img18.svg" alt="Two vectors in 3D space" />
+        <p class="image-caption">Two vectors in three-dimensional space</p>
+      </div>
+
+      <p>
+        Same idea as before: scale each one, add them, and see what you can reach.
+      </p>
+
+      <div class="image">
+        <img src="images/img19.svg" alt="Linear combination in 3D" />
+        <p class="image-caption">A linear combination of two 3D vectors</p>
+      </div>
+
+      <p>
+        Imagine turning two knobs, one for each scalar. As you adjust them, <span class="highlight">the tip of the resulting vector traces out a flat sheet through the origin.</span> That sheet is the span of the two vectors.
+      </p>
+
+      <div class="image">
+        <img src="images/img20.svg" alt="Span of two 3D vectors forms a plane" />
+        <p class="image-caption">The span of two non-collinear 3D vectors is a plane through the origin</p>
+      </div>
+
+      <h3>Adding a Third Vector</h3>
+
+      <p>
+        What happens if we throw in a third vector? Same deal: three scalars, three vectors, one sum:
+      </p>
+
+      <div class="math-block">
+        $$a\vec{\mathbf{v}} + b\vec{\mathbf{w}} + c\vec{\mathbf{u}}$$
+      </div>
+
+      <div class="image">
+        <img src="images/img21.svg" alt="Linear combination of three vectors" />
+        <p class="image-caption">The linear combination of $\vec{\mathbf{v}}$, $\vec{\mathbf{w}}$, and $\vec{\mathbf{u}}$</p>
+      </div>
+
+      <p>
+        Two things can happen when we add a third vector:
+      </p>
+
+      <p>
+        <strong>Case 1:</strong> If the third vector already sits on the span of the first two, the span doesn't change. You're trapped on that same flat sheet, with no new reach.
+      </p>
+
+      <div class="image">
+        <img src="images/img22.svg" alt="Third vector lies in span of first two" />
+        <p class="image-caption">Third vector already in the span, no new reach</p>
+      </div>
+
+      <p>
+        <strong>Case 2:</strong> If the third vector is <em>not</em> in the span of the first two, it points in a genuinely new direction — and <span class="highlight">now you can reach every vector in 3D space.</span> Scaling it sweeps that flat sheet through all of space.
+      </p>
+
+      <div class="image">
+        <img src="images/img23.svg" alt="Third vector is not in span, unlocking full 3D" />
+        <p class="image-caption">A third independent vector unlocks all of 3D space</p>
+      </div>
+
+      <h3>Linear Dependence and Independence</h3>
+
+      <p>
+        When a vector is already in the span of the others (whether it's a third vector sitting on a plane or two vectors along the same line), it's redundant. Whenever you can remove a vector without shrinking the span, the set is <span class="highlight">linearly dependent.</span>
+      </p>
+
+      <div class="image">
+        <img src="images/img24.svg" alt="Linearly dependent vectors in 2D" />
+        <p class="image-caption">Linearly dependent: one vector is redundant</p>
+      </div>
+
+      <p>
+        Put differently: <span class="highlight">one of the vectors can be written as a linear combination of the others.</span>
+      </p>
+
+      <div class="image">
+        <img src="images/img25.svg" alt="Linearly dependent vectors in 3D" />
+        <p class="image-caption">A dependent vector lies in the span of the others</p>
+      </div>
+
+      <p>
+        On the other hand, if each vector truly does add another dimension to the span, they are said to be <span class="highlight">linearly independent.</span>
+      </p>
+
+      <div class="image">
+        <img src="images/img26.svg" alt="Linearly independent vectors in 3D" />
+        <p class="image-caption">Each independent vector adds a new dimension to the span</p>
+      </div>
+
+      <!-- SECTION: Summary -->
+      <h2>Summary</h2>
+      <ul>
+        <li><strong>Linear combination</strong>: $a\vec{\mathbf{v}} + b\vec{\mathbf{w}}$: scale vectors and add them together</li>
+        <li><strong>Span</strong>: the set of all vectors reachable by linear combinations</li>
+        <li><strong>Linearly dependent</strong>: one vector is redundant (already in the span of the others)</li>
+        <li><strong>Linearly independent</strong>: each vector adds a new dimension to the span</li>
+        <li><strong>Basis</strong>: a set of linearly independent vectors that span the full space</li>
+      </ul>
+
+    </article>
+
+    <footer>
+      <p>
+        Content adapted from 3Blue1Brown's <em>Essence of Linear Algebra</em> series (Chapter 2).
+      </p>
+      <p>&copy; 2026 Grant Sanderson</p>
+    </footer>
+  </div>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    (function () {
+      const toggle = document.querySelector(".theme-toggle");
+      const root = document.documentElement;
+
+      // Check for saved preference, otherwise use system preference
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) root.setAttribute("data-theme", savedTheme);
+
+      toggle.addEventListener("click", () => {
+        const currentTheme = root.getAttribute("data-theme");
+        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+        let newTheme;
+        if (currentTheme === "dark") newTheme = "light";
+        else if (currentTheme === "light") newTheme = "dark";
+        else newTheme = systemPrefersDark ? "light" : "dark";
+
+        root.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+      });
+    })();
+  </script>
+</body>
+</html>

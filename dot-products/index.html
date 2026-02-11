@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dot Products and Duality</title>
+    <link rel="icon" type="image/png" href="parsity.png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../styles.css">
+    
+    <!-- KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false}
+            ]
+        });"></script>
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+    </button>
+
+    <div class="container">
+        <header>
+            <h1>Dot Products & Duality</h1>
+            <p class="meta">Based on the lesson by Grant Sanderson (3Blue1Brown)</p>
+        </header>
+        <blockquote>
+            "K-Dot, can you pray for me?"
+            <br />&mdash; Kendrick Lamar aka Mr. Morale
+        </blockquote>
+        
+        <article>
+            <p>You've taken a couple of big steps so far by covering vectors and linear transformations, but you're not truly a big stepper until you understand dot products. Let's start with the standard introduction, then dig into why the computation actually works.</p>
+
+            <!-- SECTION: Numerical Method -->
+            <h2>Numerical Method</h2>
+            
+            <p>The <span class="highlight">dot product</span> takes two vectors of the same dimension (two lists of numbers with the same length), pairs up the coordinates, multiplies each pair, and adds the results.</p>
+            
+            <div class="image">
+                <img src="images/img1.svg" alt="Visual showing the dot product formula: pair coordinates, multiply, and add">
+                <p class="image-caption">The dot product pairs up coordinates, multiplies them, and adds the results</p>
+            </div>
+
+            <p>Here's what that looks like with two 2D vectors:</p>
+            
+            <div class="math-block">
+                $$\begin{bmatrix} 1 \\ 2 \end{bmatrix} \cdot \begin{bmatrix} 3 \\ 4 \end{bmatrix} = 1 \cdot 3 + 2 \cdot 4 = 11$$
+            </div>
+
+            <!-- SECTION: Geometric Interpretation -->
+            <h2>Geometric Interpretation</h2>
+            
+            <p>The dot product also has a clean geometric interpretation. Given two vectors $\mathbf{v}$ and $\mathbf{w}$, imagine projecting $\mathbf{w}$ onto the line passing through the origin and the tip of $\mathbf{v}$.</p>
+            
+            <div class="image">
+                <img src="images/img2.svg" alt="Projecting vector w onto the line through v">
+                <p class="image-caption">Projecting $\mathbf{w}$ onto the line defined by $\mathbf{v}$</p>
+            </div>
+            
+            <p>Multiply the length of that <span class="highlight">projection</span> by the length of $\mathbf{v}$, and that's your dot product $(\mathbf{v} \cdot \mathbf{w})$.</p>
+            
+            <div class="image">
+                <img src="images/img3.svg" alt="The dot product equals the projection length times the length of v">
+                <p class="image-caption">The dot product equals (length of projection) &times; (length of $\mathbf{v}$)</p>
+            </div>
+            
+            <p>When the projection of $\mathbf{w}$ points in the opposite direction of $\mathbf{v}$, the dot product is negative.</p>
+            
+            <div class="image">
+                <img src="images/img4.svg" alt="A negative dot product when vectors point in opposing directions">
+                <p class="image-caption">When the projection points opposite to $\mathbf{v}$, the dot product is negative</p>
+            </div>
+            
+            <p>Essentially, <span class="highlight">the sign of the dot product tells you how aligned two given vectors are:</span></p>
+            
+            <ul>
+                <li>$\mathbf{v} \cdot \mathbf{w} > 0$ &rarr; they point in <span class="highlight">similar directions</span></li>
+                <li>$\mathbf{v} \cdot \mathbf{w} = 0$ &rarr; they are <span class="highlight">perpendicular</span> (the projection of one onto the other is the zero vector)</li>
+                <li>$\mathbf{v} \cdot \mathbf{w} < 0$ &rarr; they point in <span class="highlight">opposing directions</span></li>
+            </ul>
+            
+            <div class="image">
+                <img src="images/img5.svg" alt="Diagram showing positive, negative, and zero dot product regions">
+                <p class="image-caption">The sign of the dot product indicates directional alignment</p>
+            </div>
+
+            <!-- SECTION: Order Doesn't Matter -->
+            <h3>Order Doesn't Matter</h3>
+            
+            <p>The geometric picture looks asymmetric as it treats the two vectors very differently. But <span class="highlight">the dot product is commutative.</span> You could project $\mathbf{v}$ onto $\mathbf{w}$ instead, multiply by the length of $\mathbf{w}$, and get the same answer.</p>
+            
+            <div class="image">
+                <img src="images/img7.svg" alt="Projecting in either order produces the same dot product">
+                <p class="image-caption">Even though this feels like a very different process, it produces the same result</p>
+            </div>
+
+            <p>When $\mathbf{v}$ and $\mathbf{w}$ have the same length, the symmetry is obvious. Projecting $\mathbf{w}$ onto $\mathbf{v}$ is a mirror image of projecting $\mathbf{v}$ onto $\mathbf{w}$.</p>
+
+            <div class="image">
+                <img src="images/img8.svg" alt="Equal-length vectors have perfect projection symmetry">
+                <p class="image-caption">Equal-length vectors have perfect symmetry</p>
+            </div>
+
+            <p>If you scale $\mathbf{v}$ by some constant (say $2$), the symmetry breaks, but the dot product still doubles either way. Think of it as doubling the length of the vector you project onto, or as doubling the projection itself. <span class="highlight">Either interpretation gives you $2(\mathbf{v} \cdot \mathbf{w})$.</span></p>
+
+            <div class="image">
+                <img src="images/img9.svg" alt="Projecting w onto 2v: projection unchanged, vector doubled">
+                <p class="image-caption">The length of projecting $\mathbf{w}$ onto $2\mathbf{v}$ stays the same, while the length of $2\mathbf{v}$ doubles</p>
+            </div>
+
+            <div class="image">
+                <img src="images/img10.svg" alt="Projecting 2v onto w: projection doubled, vector unchanged">
+                <p class="image-caption">The length of projecting $2\mathbf{v}$ onto $\mathbf{w}$ doubles, while the length of $\mathbf{w}$ stays the same</p>
+            </div>
+
+            <p>OK, that's great and all, but what does this numerical process have to do with geometric projection? To answer that properly, we need to talk about linear transformations from 2D to 1D.</p>
+
+            <div class="image">
+                <img src="images/img11.svg" alt="Linear transformations that take 2D vectors and output numbers">
+                <p class="image-caption">Functions that take in 2D vectors and spit out numbers</p>
+            </div>
+
+            <!-- SECTION: Linear Transformations -->
+            <h2>Linear Transformations</h2>
+
+            <p>These are functions that take in 2D vectors and output single numbers. Because they're linear, they're far more constrained than arbitrary functions with 2D inputs and 1D outputs.</p>
+
+            <p>Rather than get into formal definitions of linearity, let's focus on an equivalent visual property: <span class="highlight">if you take a line of evenly spaced dots and apply a linear transformation, the dots stay evenly spaced in the output.</span></p>
+
+            <div class="image">
+                <img src="images/img14.svg" alt="Evenly spaced dots remain evenly spaced under a linear transformation">
+                <p class="image-caption">A line of evenly spaced dots remains evenly spaced in the output</p>
+            </div>
+
+            <p>If the dots come out unevenly spaced, the transformation isn't linear.</p>
+
+            <div class="image">
+                <img src="images/img15.png" alt="A non-linear transformation produces unevenly spaced dots">
+                <p class="image-caption">A non-linear transformation produces unevenly spaced output</p>
+            </div>
+
+            <p>Just like in higher dimensions, a linear transformation from 2D to 1D is <span class="highlight">completely determined by where $\hat{\imath}$ and $\hat{\jmath}$ land.</span> Since each one lands on a single number, the whole transformation is described by a $1 \times 2$ matrix.</p>
+
+            <div class="image">
+                <img src="images/img16.svg" alt="A 1x2 transformation matrix">
+                <p class="image-caption">This linear transformation is described by a $1 \times 2$ matrix</p>
+            </div>
+
+            <p>Say a linear transformation takes $\hat{\imath}$ to $2$ and $\hat{\jmath}$ to $-1$. Where does $\begin{bmatrix} 3 \\ 2 \end{bmatrix}$ end up? First, let's break it into its basis components: $3\hat{\imath} + 2\hat{\jmath}$.</p>
+
+            <div class="image">
+                <img src="images/img17.svg" alt="A vector broken into scaled basis components">
+                <p class="image-caption">Breaking a vector into its basis components</p>
+            </div>
+
+            <p>Linearity tells us:</p>
+
+            <div class="math-block">
+                $$L(3\hat{\imath} + 2\hat{\jmath}) = 3L(\hat{\imath}) + 2L(\hat{\jmath}) = 3(2) + 2(-1) = 4$$
+            </div>
+
+            <div class="image">
+                <img src="images/img18.svg" alt="Following where the scaled basis vectors land">
+                <p class="image-caption">Following where the scaled basis vectors land under the transformation</p>
+            </div>
+
+            <p><span class="highlight">This calculation is called matrix-vector multiplication, and it's computationally identical to a dot product.</span></p>
+
+            <div class="image">
+                <img src="images/img19.svg" alt="Matrix-vector multiplication looks like a dot product">
+                <p class="image-caption">$1 \times 2$ matrix-vector multiplication is computationally identical to a dot product</p>
+            </div>
+
+            <p>There's a natural correspondence here: every $1 \times 2$ matrix has an associated 2D vector. Just tilt the vector on its side to get the matrix, or tip the matrix back up to get the vector.</p>
+
+            <div class="image">
+                <img src="images/img20.svg" alt="Association between 1x2 matrices and 2D vectors">
+                <p class="image-caption">There is a nice association between $1 \times 2$ matrices and 2D vectors</p>
+            </div>
+
+            <p>Numerically, that might seem trivial, but it's quite significant from the geometric perspective. This empirically proves that there's a connection between linear transformations that output numbers and vectors themselves.</p>
+
+            <div class="image">
+                <img src="images/img21.svg" alt="Connection between linear transformations to numbers and vectors">
+                <p class="image-caption">Visual representation of the connection between linear transformations to numbers and 2D vectors</p>
+            </div>
+
+            <!-- SECTION: Unit Vectors & Projection -->
+            <h3>Unit Vector</h3>
+
+            <p>To help you visualize unit vectors, place a copy of the number line diagonally in 2D space with $0$ at the origin. Let $\hat{\mathbf{u}}$ be the <span class="highlight">unit vector</span> pointing to $1$ on this line.</p>
+
+            <div class="image">
+                <img src="images/img22.svg" alt="A diagonal number line defined by unit vector u-hat">
+                <p class="image-caption">A diagonal number line with unit vector $\hat{\mathbf{u}}$ pointing to $1$</p>
+            </div>
+
+            <p>Projecting 2D vectors onto this diagonal line defines a function from 2D vectors to numbers.</p>
+
+            <div class="image">
+                <img src="images/img23.svg" alt="Example vectors near the diagonal number line">
+                <p class="image-caption">Some example vectors</p>
+            </div>
+
+            <div class="image">
+                <img src="images/img24.svg" alt="Example vectors projected onto the diagonal number line">
+                <p class="image-caption">The example vectors projected onto the line defined by $\hat{\mathbf{u}}$</p>
+            </div>
+
+            <p><span class="highlight">This projection function is linear, and since it maps 2D to 1D, some $1 \times 2$ matrix describes it.</span> To find that matrix, we need to figure out where $\hat{\imath}$ and $\hat{\jmath}$ land.</p>
+
+            <div class="image">
+                <img src="images/img27.svg" alt="A 1x2 matrix describes this projection transformation">
+                <p class="image-caption">Some $1 \times 2$ matrix describes this projection</p>
+            </div>
+
+            <div class="image">
+                <img src="images/img 28.svg" alt="Where i-hat and j-hat land on the diagonal number line">
+                <p class="image-caption">Where $\hat{\imath}$ and $\hat{\jmath}$ land when projected</p>
+            </div>
+
+            <p>Here's where things get interesting (relatively speaking). Both $\hat{\imath}$ and $\hat{\mathbf{u}}$ are unit vectors, so projecting $\hat{\imath}$ onto $\hat{\mathbf{u}}$'s line is perfectly symmetrical to projecting $\hat{\mathbf{u}}$ onto the x-axis. <span class="highlight">That means $\hat{\imath}$ lands at the x-coordinate of $\hat{\mathbf{u}}$.</span></p>
+
+            <div class="image">
+                <img src="images/img29.svg" alt="Symmetry between projecting i-hat onto u-hat and u-hat onto the x-axis">
+                <p class="image-caption">The projection of $\hat{\imath}$ onto $\hat{\mathbf{u}}$'s line is symmetric to projecting $\hat{\mathbf{u}}$ onto the x-axis</p>
+            </div>
+
+            <div class="image">
+                <img src="images/img30.svg" alt="i-hat lands at the x-coordinate of u-hat">
+                <p class="image-caption">$\hat{\imath}$ lands at the x-coordinate of $\hat{\mathbf{u}}$</p>
+            </div>
+
+            <p><span class="highlight">Same reasoning: $\hat{\jmath}$ lands at the y-coordinate of $\hat{\mathbf{u}}$.</span></p>
+
+            <div class="image">
+                <img src="images/img31.svg" alt="j-hat lands at the y-coordinate of u-hat">
+                <p class="image-caption">$\hat{\jmath}$ lands at the y-coordinate of $\hat{\mathbf{u}}$</p>
+            </div>
+
+            <p>So the $1 \times 2$ matrix describing this projection is just the coordinates of $\hat{\mathbf{u}}$. Multiplying any vector by this matrix is the same as dotting with $\hat{\mathbf{u}}$.</p>
+
+            <div class="image">
+                <img src="images/img32.svg" alt="The projection transformation matrix has coordinates of u-hat">
+                <p class="image-caption">The projection transformation matrix contains the coordinates of $\hat{\mathbf{u}}$</p>
+            </div>
+
+            <div class="image">
+                <img src="images/img33.svg" alt="Matrix-vector multiplication equals the dot product with u-hat">
+                <p class="image-caption">Matrix-vector multiplication is computationally identical to a dot product with $\hat{\mathbf{u}}$</p>
+            </div>
+
+            <p>That's why <span class="highlight">dotting with a unit vector gives you the projection onto that vector's span.</span> The vector is really just a linear transformation in disguise.</p>
+
+            <div class="image">
+                <img src="images/img34.svg" alt="Dot product with a unit vector as projection">
+                <p class="image-caption">The dot product with a unit vector is projection onto that vector's span</p>
+            </div>
+
+            <p>What about non-unit vectors? Scale $\hat{\mathbf{u}}$ by $3$, and each component triples, so the associated matrix scales by $3$ too.</p>
+
+            <div class="image">
+                <img src="images/img35.svg" alt="Unit vector u-hat scaled by 3">
+                <p class="image-caption">Scaling $\hat{\mathbf{u}}$ by a factor of $3$</p>
+            </div>
+
+            <div class="image">
+                <img src="images/img36.svg" alt="The transformation matrix associated with 3 times u-hat">
+                <p class="image-caption">The associated transformation matrix scales accordingly</p>
+            </div>
+
+            <p>The new transformation still projects onto the same line, but then scales the result by $3$. Just like with non-unit vectors, <span class="highlight">the dot product here is just a matter of projecting, then scaling.</span></p>
+
+            <div class="image">
+                <img src="images/img37.svg" alt="Project onto the number line then scale by 3">
+                <p class="image-caption">Project onto the number line, then scale by $3$</p>
+            </div>
+
+            <!-- SECTION: Duality -->
+            <h2>Duality</h2>
+
+            <p>Alright, we just covered some pretty esoteric stuff. Let's zoom out and recap a bit before wrapping up. We started with the geometric operation of projecting 2D space onto a diagonal number line. <span class="highlight">Because it was linear, a $1 \times 2$ matrix had to describe it.</span> And since multiplying by a $1 \times 2$ matrix is the same as a dot product, <span class="highlight">the transformation was inescapably tied to a specific 2D vector.</span></p>
+
+            <div class="image">
+                <img src="images/img38.svg" alt="Projecting 2D space onto a diagonal number line">
+                <p class="image-caption">A linear transformation defined geometrically by projecting onto a diagonal number line</p>
+            </div>
+
+            <div class="image">
+                <img src="images/img39.svg" alt="The transformation is related to a 2D vector through duality">
+                <p class="image-caption">The transformation is inescapably related to some 2D vector</p>
+            </div>
+
+            <p>This means that any linear transformation whose output space is the number line corresponds to a unique vector $\vec{\mathbf{v}}$, such that applying the transformation to $\vec{\mathbf{w}}$ is the same as computing $\vec{\mathbf{v}} \cdot \vec{\mathbf{w}}$. This correspondence is called <span class="highlight">duality.</span></p>
+
+            <p>Duality shows up everywhere in math. Put simply, <span class="highlight">it's a natural-but-surprising correspondence between two types of mathematical objects.</span></p>
+
+            <!-- SECTION: Conclusion -->
+            <h2>Conclusion</h2>
+            
+            <p>On the surface, the dot product is a geometric tool for measuring how much two vectors align. Under the surface, it's a bridge between vectors and linear transformations. <span class="highlight">Every vector secretly encodes a transformation from its space down to the number line.</span></p>
+        </article>
+        
+        <footer>
+            <p>Content adapted from 3Blue1Brown's <em>Essence of Linear Algebra</em> series (Chapter 9).</p>
+            <p>&copy; 2026 Grant Sanderson</p>
+        </footer>
+    </div>
+
+    <!-- Theme Toggle Script -->
+    <script>
+        (function() {
+            const toggle = document.querySelector('.theme-toggle');
+            const root = document.documentElement;
+            
+            // Check for saved preference, otherwise use system preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                root.setAttribute('data-theme', savedTheme);
+            }
+            
+            toggle.addEventListener('click', () => {
+                const currentTheme = root.getAttribute('data-theme');
+                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                
+                let newTheme;
+                if (currentTheme === 'dark') {
+                    newTheme = 'light';
+                } else if (currentTheme === 'light') {
+                    newTheme = 'dark';
+                } else {
+                    // No explicit theme set, toggle from system preference
+                    newTheme = systemPrefersDark ? 'light' : 'dark';
+                }
+                
+                root.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+        })();
+    </script>
+</body>
+</html>

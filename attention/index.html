@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attention in Transformers (Step-by-Step)</title>
+  <link rel="icon" type="image/png" href="parsity.png" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../styles.css" />
+
+  <!-- KaTeX for math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ]
+    });"
+  ></script>
+</head>
+
+<body>
+  <!-- Theme Toggle Button -->
+  <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+    </svg>
+  </button>
+
+  <div class="container">
+    <header>
+      <h1>Attention in Transformers, Step-by-Step</h1>
+      <p class="meta">Based on the lesson by Grant Sanderson (3Blue1Brown)</p>
+    </header>
+
+    <article>
+      <!-- INTRO -->
+      <p>
+        Last chapter we walked through the internals of a transformer. Now let's focus on
+        the mechanism that makes the whole thing work:
+        <span class="highlight">attention</span>. The name comes from the 2017 paper
+        <em>"Attention Is All You Need,"</em> and the title is barely an exaggeration.
+      </p>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Motivating Examples -->
+      <!-- ============================================================ -->
+      <h2>Attention</h2>
+
+      <h3>Motivating Examples</h3>
+      <p>
+        Consider these three phrases: <strong>American shrew mole</strong>,
+        <strong>One mole of carbon dioxide</strong>, and
+        <strong>Take a biopsy of the mole</strong>.
+        The word "mole" means something different each time, yet after the initial embedding
+        step the vector for "mole" would be identical in all three cases.
+        The <span class="highlight">embedding</span> is just a lookup table with no awareness of context.
+      </p>
+
+      <div class="image">
+        <img src="images/img1.png" alt="Three phrases showing 'mole' with different meanings depending on context" />
+        <p class="image-caption">The same token can mean very different things depending on context</p>
+      </div>
+
+      <p>
+        That's where attention comes in. The attention block lets surrounding embeddings
+        pass information into the "mole" vector, nudging it toward the right meaning.
+        A well-trained model will have learned distinct directions in the embedding space
+        for each sense of the word.
+      </p>
+
+      <div class="image">
+        <img src="images/img2.png" alt="Surrounding embeddings passing information into the mole embedding" />
+        <p class="image-caption">Attention lets surrounding words update a token's embedding</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img3.png" alt="Generic embedding updated by attention to encode a specific meaning" />
+        <p class="image-caption">Attention adds a context-dependent adjustment to the generic embedding</p>
+      </div>
+
+      <p>
+        Same idea with "tower." The generic embedding doesn't know if we mean the Eiffel Tower
+        or a miniature chess piece. Context like "Eiffel" should push the vector toward Paris
+        and iron; adding "miniature" should pull it away from tall and large.
+      </p>
+
+      <div class="image">
+        <img src="images/img4.png" alt="Tower embedding updated differently by Eiffel vs miniature context" />
+        <p class="image-caption">Context like "Eiffel" or "miniature" refines what "tower" means</p>
+      </div>
+
+      <p>
+        Attention can move information across long distances. Remember, only the
+        <em>last</em> vector in the sequence drives next-token prediction. If the input is
+        an entire mystery novel ending with <em>"Therefore the murderer was&hellip;"</em>,
+        that final vector needs to encode everything relevant from the full <span class="highlight">context window</span>.
+      </p>
+
+      <div class="image">
+        <img src="images/img5.png" alt="Information transfer across short and long distances in the sequence" />
+        <p class="image-caption">Attention can move information across large distances</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img6.png" alt="Only the last vector is used for next-token prediction" />
+        <p class="image-caption">The final position is what drives next-token prediction</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img7.png" alt="Final vector encoding all relevant context from the passage" />
+        <p class="image-caption">The last vector must contain everything relevant for prediction</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: The Attention Pattern -->
+      <!-- ============================================================ -->
+      <h2>The Attention Pattern</h2>
+      <p>
+        We'll start with a <span class="highlight">single head of attention</span>.
+        Later we'll see how the full attention block runs many heads in parallel.
+      </p>
+
+      <div class="image">
+        <img src="images/img8.png" alt="Overview of a single attention head" />
+        <p class="image-caption">A single attention head produces an attention pattern</p>
+      </div>
+
+      <p>
+        To keep things concrete, our input is:
+        <em>"A fluffy blue creature roamed the verdant forest."</em>
+        For now, the only update we care about is adjectives adjusting the embeddings
+        of their corresponding nouns.
+      </p>
+
+      <div class="image">
+        <img src="images/img9.png" alt="Fluffy blue creature phrase with adjectives and nouns highlighted" />
+        <p class="image-caption">Toy intuition: adjectives push context into their nouns</p>
+      </div>
+
+      <p>
+        Each word starts as a high-dimensional <span class="highlight">embedding vector</span> $\vec{E}$ that also
+        encodes position. Our goal: produce refined embeddings $\vec{E}'$ where the
+        nouns have absorbed meaning from their adjectives.
+      </p>
+
+      <div class="image">
+        <img src="images/img10.png" alt="Initial embedding vectors labeled E for each word in the phrase" />
+        <p class="image-caption">Each token starts as an embedding vector $\vec{E}$</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Queries -->
+      <!-- ============================================================ -->
+      <h2>Queries</h2>
+      <p>
+        Each token produces a <span class="highlight">query</span> vector, conceptually asking:
+        <strong>"What am I looking for in the surrounding context?"</strong>
+      </p>
+
+      <div class="image">
+        <img src="images/img11.png" alt="The noun creature producing a query: are there adjectives in front of me?" />
+        <p class="image-caption">Each token poses a query about what context it needs</p>
+      </div>
+
+      <p>
+        Computing a query means multiplying a learned matrix $W_Q$ by the embedding.
+        The query lives in a much smaller space than the embedding itself.
+      </p>
+
+      <div class="math-block">
+        $$\vec{Q}_i = W_Q \, \vec{E}_i$$
+      </div>
+
+      <div class="image">
+        <img src="images/img12.png" alt="W_Q matrix multiplied by embedding to produce a query vector" />
+        <p class="image-caption">$W_Q$ maps each embedding into a smaller query space</p>
+      </div>
+
+      <p>
+        $W_Q$ is applied to every embedding in the context, one query per token.
+        In our toy example, think of it as mapping noun embeddings to a direction
+        that encodes "looking for adjectives in preceding positions."
+      </p>
+
+      <div class="image">
+        <img src="images/img13.png" alt="One query vector produced for each token in the sequence" />
+        <p class="image-caption">Every token gets its own query</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img14.png" alt="Query space direction encoding the notion of looking for adjectives" />
+        <p class="image-caption">The query space captures what each token is searching for</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Keys -->
+      <!-- ============================================================ -->
+      <h2>Keys</h2>
+      <p>
+        At the same time, a second learned matrix, the <span class="highlight">key matrix</span>
+        ($W_K$), maps each embedding to a <span class="highlight">key</span> vector.
+        Think of keys as potential answers to the queries.
+      </p>
+
+      <div class="math-block">
+        $$\vec{K}_j = W_K \, \vec{E}_j$$
+      </div>
+
+      <div class="image">
+        <img src="images/img15.png" alt="Key matrix W_K producing key vectors from embeddings" />
+        <p class="image-caption">$W_K$ maps each embedding to a key vector</p>
+      </div>
+
+      <p>
+        We want keys to match queries when they closely align. In our example, the key matrix maps
+        adjectives like "fluffy" and "blue" to vectors closely aligned with the query from "creature."
+      </p>
+
+      <div class="image">
+        <img src="images/img16.png" alt="Key from fluffy aligning closely with query from creature" />
+        <p class="image-caption">Strong alignment between a key and query indicates relevance</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Dot Products -->
+      <!-- ============================================================ -->
+      <h2>Dot Products Create Relevance Scores</h2>
+      <p>
+        For each query-key pair we compute a <span class="highlight">dot product</span>. Larger dot product = stronger
+        alignment = higher relevance.
+      </p>
+
+      <div class="image">
+        <img src="images/img17.png" alt="Grid of dots visualizing dot products between all key-query pairs" />
+        <p class="image-caption">Bigger dots = larger dot products = stronger attention</p>
+      </div>
+
+      <p>
+        Computing all the dot products gives us a grid of <span class="highlight">raw scores</span> showing how relevant
+        each word is to updating every other word.
+      </p>
+
+      <div class="image">
+        <img src="images/img18.png" alt="Full score grid of dot products between all positions" />
+        <p class="image-caption">A score matrix: how much each position attends to every other</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Softmax -->
+      <!-- ============================================================ -->
+      <h2>Softmax Turns Scores into Weights</h2>
+      <p>
+        We want nonnegative <span class="highlight">attention weights</span> that sum to 1 (a probability distribution), so we apply
+        <span class="highlight">softmax</span> along each column to normalize the scores.
+      </p>
+
+      <div class="image">
+        <img src="images/img19.png" alt="Softmax applied column-by-column to normalize scores" />
+        <p class="image-caption">Softmax normalizes raw scores into attention weights</p>
+      </div>
+
+      <p>
+        After softmax, the grid is filled with normalized values. This grid is the
+        <span class="highlight">attention pattern.</span>
+      </p>
+
+      <div class="image">
+        <img src="images/img20.png" alt="Normalized attention pattern grid with weights summing to 1 per column" />
+        <p class="image-caption">The attention pattern: each column is a probability distribution over positions</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Compact Formula -->
+      <!-- ============================================================ -->
+      <h2>The Compact Formula</h2>
+      <p>
+        The original paper writes this compactly:
+      </p>
+
+      <div class="image">
+        <img src="images/img21.png" alt="The attention formula from the original Attention Is All You Need paper" />
+        <p class="image-caption">The scaled dot-product attention formula from the paper</p>
+      </div>
+
+      <p>
+        $Q$ and $K$ are the full arrays of query and key vectors. The product $K^T Q$
+        gives you the complete grid of dot products in one shot.
+      </p>
+
+      <div class="image">
+        <img src="images/img22.png" alt="K-transpose times Q representing the full grid of dot products" />
+        <p class="image-caption">$K^T Q$ produces the complete score matrix in one operation</p>
+      </div>
+
+      <p>
+        For numerical stability, the scores are <span class="highlight">scaled</span> by $\sqrt{d_k}$ (the square root
+        of the key-query dimension) before softmax.
+      </p>
+
+      <div class="image">
+        <img src="images/img23.png" alt="Softmax equation with the square root scaling factor" />
+        <p class="image-caption">Scaling by $\sqrt{d_k}$ keeps gradients well-behaved</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Masking -->
+      <!-- ============================================================ -->
+      <h2>Masking</h2>
+      <p>
+        During training, the model predicts every possible next token for every subsequence
+        simultaneously. Much more efficient than doing them one at a time.
+      </p>
+
+      <div class="image">
+        <img src="images/img24.png" alt="Model predicting multiple next tokens simultaneously during training" />
+        <p class="image-caption">Efficient training: predicting every next token at once</p>
+      </div>
+
+      <p>
+        But this means later tokens can never influence earlier ones, because that would
+        give away the answer. So before softmax, we set the upper-triangle entries to
+        $-\infty$, which softmax turns into zeros. This is called
+        <span class="highlight">masking.</span>
+      </p>
+
+      <div class="image">
+        <img src="images/img25.png" alt="Masking the attention pattern so later tokens cannot attend to earlier ones" />
+        <p class="image-caption">Masking prevents later tokens from influencing earlier ones</p>
+      </div>
+
+      <p>
+        The attention pattern is $n \times n$ (one row and column per token), so it grows
+        with the <em>square</em> of the <span class="highlight">context length</span>. This is why scaling context windows
+        is expensive, and why there's so much research into efficient attention.
+      </p>
+
+      <div class="image">
+        <img src="images/img26.png" alt="n x n attention matrix highlighting quadratic growth" />
+        <p class="image-caption">Attention cost grows quadratically with context length</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Values -->
+      <!-- ============================================================ -->
+      <h2>Values Carry the Information</h2>
+      <p>
+        Keys decide <em>where</em> to look. Values decide <em>what</em> gets copied over.
+        We want the embedding of "fluffy" to cause a change in "creature," moving it
+        toward a region of embedding space that specifically encodes a <em>fluffy creature</em>.
+      </p>
+
+      <div class="image">
+        <img src="images/img27.png" alt="Fluffy embedding causing an update to the creature embedding" />
+        <p class="image-caption">Values carry the actual information that updates embeddings</p>
+      </div>
+
+      <p>
+        A third learned matrix, the <span class="highlight">value matrix</span> $W_V$, maps
+        each embedding to a <span class="highlight">value vector</span>.
+      </p>
+
+      <div class="math-block">
+        $$\vec{V}_j = W_V \, \vec{E}_j$$
+      </div>
+
+      <div class="image">
+        <img src="images/img28.png" alt="Value matrix W_V multiplied by embedding to form value vectors" />
+        <p class="image-caption">$W_V$ maps embeddings to transferable "content" vectors</p>
+      </div>
+
+      <p>
+        For each column in the attention grid, we multiply each value vector by the
+        corresponding weight.
+      </p>
+
+      <div class="image">
+        <img src="images/img29.png" alt="Value vectors weighted by attention scores in the creature column" />
+        <p class="image-caption">Weighted values: fluffy and blue contribute most under "creature"</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Weighted Sum -->
+      <!-- ============================================================ -->
+      <h2>Weighted Sum Builds the Update</h2>
+      <p>
+        Adding the rescaled value vectors in a <span class="highlight">weighted sum</span> produces a change $\Delta \vec{E}$.
+        Add that to the original embedding and you get a refined embedding $\vec{E}'$
+        that encodes richer, contextual meaning.
+      </p>
+
+      <div class="math-block">
+        $$\Delta \vec{E}_i = \sum_j w_{ij} \, \vec{V}_j$$
+      </div>
+
+      <div class="math-block">
+        $$\vec{E}_i' = \vec{E}_i + \Delta \vec{E}_i$$
+      </div>
+
+      <div class="image">
+        <img src="images/img30.png" alt="Delta E change vector computed as weighted sum of values" />
+        <p class="image-caption">The weighted sum of values produces the update $\Delta \vec{E}$</p>
+      </div>
+
+      <p>
+        This applies across all columns, producing a full sequence of refined embeddings
+        out the other end. The whole process is a <strong>single head of attention</strong>,
+        parameterized by three learned matrices: $W_Q$, $W_K$, and $W_V$.
+      </p>
+
+      <div class="image">
+        <img src="images/img31.png" alt="Complete single head of attention: queries, keys, values, and refined output" />
+        <p class="image-caption">One attention head: $W_Q$, $W_K$, and $W_V$ together refine all embeddings</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Counting Parameters -->
+      <!-- ============================================================ -->
+      <h2>Counting Parameters</h2>
+      <p>
+        Using GPT-3's numbers: the key and query matrices each have 12,288 columns
+        (the embedding dimension) and 128 rows (the key-query dimension), giving
+        <strong>~1.6M parameters</strong> per matrix.
+      </p>
+
+      <div class="image">
+        <img src="images/img32.png" alt="GPT-3 parameter count for the query and key matrices" />
+        <p class="image-caption">Query and key matrices: ~1.6M parameters each</p>
+      </div>
+
+      <p>
+        If the value matrix were a full $12{,}288 \times 12{,}288$ square, that would be
+        ~151M parameters. Way too many. In practice, the value map is factored into
+        two smaller matrices: one ($\text{Value}_\downarrow$) maps the embedding down
+        to the 128-dimensional key-query space, and a second ($\text{Value}_\uparrow$) maps
+        it back up. This makes it a <span class="highlight">low-rank transformation</span>,
+        keeping the parameter count balanced with the key and query matrices.
+      </p>
+
+      <div class="image">
+        <img src="images/img33.png" alt="Comparison: value matrix parameters vs query and key parameters" />
+        <p class="image-caption">Keeping value parameters balanced with query/key parameters</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img34.png" alt="Value map factored as a product of two smaller matrices" />
+        <p class="image-caption">The value map is factored into two lower-rank matrices</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img35.png" alt="Value-down matrix mapping embeddings to the smaller space" />
+        <p class="image-caption">$\text{Value}_\downarrow$: embedding space down to key-query space</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img36.png" alt="Value-up matrix mapping from smaller space back to embedding space" />
+        <p class="image-caption">$\text{Value}_\uparrow$: key-query space back up to embedding space</p>
+      </div>
+
+      <p>
+        All four matrices ($W_Q$, $W_K$, $\text{Value}_\downarrow$, $\text{Value}_\uparrow$)
+        are the same size, totaling about <strong>6.3 million parameters</strong> per head.
+      </p>
+
+      <div class="image">
+        <img src="images/img37.png" alt="Total parameter count: approximately 6.3 million per attention head" />
+        <p class="image-caption">~6.3M parameters per attention head</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Multi-Head Attention -->
+      <!-- ============================================================ -->
+      <h2>Multi-Head Attention</h2>
+      <p>
+        A single head can learn one type of contextual interaction. But context influences
+        meaning in lots of different ways. "They crashed the" before "car" has implications
+        about the car's shape and condition. "Wizard" near "Harry" suggests Harry Potter,
+        while "Queen" and "Sussex" suggest Prince Harry.
+      </p>
+
+      <div class="image">
+        <img src="images/img38.png" alt="They crashed the car: context changes what car means" />
+        <p class="image-caption">Different contexts call for different types of updates</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img39.png" alt="Harry Potter vs Prince Harry depending on surrounding words" />
+        <p class="image-caption">The same name can resolve to entirely different entities</p>
+      </div>
+
+      <p>
+        Each type of contextual update needs its own $W_Q$, $W_K$, and $W_V$ matrices.
+        A full attention block runs <span class="highlight">multi-headed attention</span>:
+        many heads in parallel, each with distinct parameters capturing different patterns.
+        GPT-3 uses 96 attention heads per block.
+      </p>
+
+      <div class="image">
+        <img src="images/img40.png" alt="Different parameter matrices produce different attention patterns" />
+        <p class="image-caption">Each head learns its own pattern of contextual interaction</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img41.png" alt="Multi-headed attention with many parallel heads" />
+        <p class="image-caption">Multi-headed attention: many heads run in parallel</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img42.png" alt="96 heads producing 96 attention patterns and value sequences" />
+        <p class="image-caption">96 heads = 96 patterns, each capturing different contextual relationships</p>
+      </div>
+
+      <p>
+        For each position, every head proposes a change $\Delta \vec{E}$. These all get added
+        together and the result is added to the original embedding.
+      </p>
+
+      <div class="image">
+        <img src="images/img43.png" alt="Proposed changes from all heads added to the embedding" />
+        <p class="image-caption">All heads contribute updates that are summed together</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img44.png" alt="One slice of the multi-headed attention output" />
+        <p class="image-caption">Each output embedding is the sum of updates from all heads</p>
+      </div>
+
+      <p>
+        With 96 heads and four matrices each, a single multi-headed attention block
+        has around <strong>600 million parameters</strong>.
+      </p>
+
+      <div class="image">
+        <img src="images/img45.png" alt="Approximately 600 million parameters per multi-head attention block" />
+        <p class="image-caption">~600M parameters per attention block</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Depth and Layer Stacking -->
+      <!-- ============================================================ -->
+      <h2>Where This Sits in the Transformer</h2>
+      <p>
+        Data flowing through a transformer doesn't pass through just one attention block.
+        It alternates between attention blocks and multi-layer perceptrons (MLPs), and
+        this pair repeats many times across many layers.
+      </p>
+
+      <div class="image">
+        <img src="images/img46.png" alt="Alternating attention blocks and MLP blocks stacked in layers" />
+        <p class="image-caption">Attention blocks and MLPs alternate across many layers</p>
+      </div>
+
+      <p>
+        The deeper you go, the more meaning each embedding absorbs from its (increasingly
+        nuanced) neighbors. The hope is that deeper layers encode higher-level ideas:
+        sentiment, tone, whether the text is a poem.
+      </p>
+
+      <div class="image">
+        <img src="images/img47.png" alt="Deeper layers encoding more abstract and nuanced meaning" />
+        <p class="image-caption">Depth enables increasingly abstract representations</p>
+      </div>
+
+      <p>
+        GPT-3 has 96 layers, bringing the total attention parameter count to just under
+        <strong>58 billion</strong>. Sounds like a lot, but that's only about a third of
+        the 175 billion total. The majority of parameters live in the MLP blocks.
+      </p>
+
+      <div class="image">
+        <img src="images/img48.png" alt="Final tally: ~58 billion attention parameters, about a third of GPT-3" />
+        <p class="image-caption">~58B attention parameters, roughly a third of GPT-3's total</p>
+      </div>
+
+      <p>
+        A big part of attention's success isn't any specific behavior it enables. It's
+        that the whole operation is massively <span class="highlight">parallelizable</span>. It runs on GPUs
+        incredibly efficiently, and scale alone has driven enormous improvements in
+        what these models can do.
+      </p>
+
+      <div class="image">
+        <img src="images/img49.png" alt="Parallelizability and scaling as key advantages of attention" />
+        <p class="image-caption">Parallelizability is a core reason attention scales so well</p>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: Summary -->
+      <!-- ============================================================ -->
+      <h2>Summary</h2>
+      <ul>
+        <li><strong>Queries</strong> ($W_Q \vec{E}$): what this token is looking for</li>
+        <li><strong>Keys</strong> ($W_K \vec{E}$): what this token offers as a match</li>
+        <li><strong>Scores</strong> ($\vec{Q} \cdot \vec{K}$): relevance via dot products, scaled by $\sqrt{d_k}$</li>
+        <li><strong>Masking</strong>: prevents later tokens from influencing earlier ones</li>
+        <li><strong>Softmax</strong>: normalizes scores into attention weights</li>
+        <li><strong>Values</strong> ($W_V \vec{E}$): the information that gets mixed and copied</li>
+        <li><strong>Update</strong>: weighted sum of values &rarr; $\Delta \vec{E}$ &rarr; refined embeddings</li>
+        <li><strong>Multi-head</strong>: many heads learn many interaction patterns in parallel</li>
+        <li><strong>Depth</strong>: stacking layers lets embeddings absorb increasingly abstract context</li>
+      </ul>
+    </article>
+
+    <footer>
+      <p>
+        Content adapted from 3Blue1Brown's Deep Learning series (Chapter 6).
+      </p>
+      <p>&copy; 2026 Grant Sanderson</p>
+    </footer>
+  </div>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    (function () {
+      const toggle = document.querySelector(".theme-toggle");
+      const root = document.documentElement;
+
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) root.setAttribute("data-theme", savedTheme);
+
+      toggle.addEventListener("click", () => {
+        const currentTheme = root.getAttribute("data-theme");
+        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+        let newTheme;
+        if (currentTheme === "dark") newTheme = "light";
+        else if (currentTheme === "light") newTheme = "dark";
+        else newTheme = systemPrefersDark ? "light" : "dark";
+
+        root.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transformers (GPT): The Tech Behind LLMs</title>
+  <link rel="icon" type="image/png" href="parsity.png" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../styles.css" />
+
+  <!-- KaTeX for math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ]
+    });"
+  ></script>
+</head>
+
+<body>
+  <!-- Theme Toggle Button -->
+  <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+    </svg>
+  </button>
+
+  <div class="container">
+    <header>
+      <h1>Transformers (GPT): The Tech Behind LLMs</h1>
+      <p class="meta">Based on the lesson by Grant Sanderson (3Blue1Brown)</p>
+    </header>
+
+    <article>
+      <!-- SECTION: What is a GPT model? -->
+      <h2>What Is a GPT Model?</h2>
+      <p>
+        GPT stands for <span class="highlight">Generative Pre-Trained Transformer.</span>
+        <strong>Generative</strong> means it generates new text.
+        <strong>Pre-trained</strong> means it was trained on large amounts of data before you ever touch it.
+        The interesting part is the <strong>transformer</strong>, the architecture at the heart of the recent boom in AI.
+      </p>
+
+      <h3>What Exactly Is a Transformer?</h3>
+      <p>
+        A <span class="highlight">transformer</span> is a type of neural network.
+        Transformers power all sorts of models: voice-to-text, text-to-image, translation, you name it.
+        The variant we care about (the one behind ChatGPT) takes in text and predicts what comes next
+        as a probability distribution over all possible next chunks.
+      </p>
+
+      <div class="image">
+        <img src="images/img1.png" alt="Model predicting the next token as a probability distribution" />
+        <p class="image-caption">Output is a distribution over possible next tokens</p>
+      </div>
+
+      <p>
+        Once you have a model like this, generating longer text is simple: <span class="highlight">feed it some text, let it predict
+        the next token, sample from the distribution, append the result, and repeat.</span> That loop is what's
+        happening when ChatGPT spits out words one at a time.
+      </p>
+
+      <!-- SECTION: Tokens -->
+      <h2>Tokens</h2>
+      <p>
+        The input text gets chopped into small chunks called <span class="highlight">tokens.</span>
+        These can be words, parts of words, or punctuation. Each token is then mapped to a vector
+        (a list of numbers) called an <span class="highlight">embedding.</span> The idea is that
+        these vectors encode meaning: words with similar meanings end up close together in the
+        embedding space.
+      </p>
+
+      <div class="image">
+        <img src="images/img2.png" alt="Example sentence broken into tokens including subword pieces" />
+        <p class="image-caption">Tokenization breaks text into model-sized chunks</p>
+      </div>
+
+      <!-- SECTION: Attention Block -->
+      <h2>Attention Block</h2>
+      <p>
+        The vectors then pass through an <span class="highlight">attention block,</span>
+        where they talk to each other and update their values based on context. The word "model" means
+        something different in "a machine learning model" than in "a fashion model." The attention
+        block figures out which words in the context matter for updating the meaning of other words,
+        and how to update them.
+      </p>
+
+      <div class="image">
+        <img src="images/img3.png" alt="Tokens exchanging information via the attention mechanism" />
+        <p class="image-caption">Attention: tokens influence each other based on relevance</p>
+      </div>
+
+      <!-- SECTION: Feed-Forward / MLP -->
+      <h2>Feed-Forward Layer (MLP)</h2>
+      <p>
+        After attention, the vectors pass through a <span class="highlight">multilayer perceptron</span>
+        (MLP), also called a feed-forward layer. Here, the vectors don't talk to each other. They all
+        go through the same operation independently, in parallel.
+      </p>
+
+      <div class="image">
+        <img src="images/img4.png" alt="Each token vector independently passed through the same MLP" />
+        <p class="image-caption">MLP: per-token transformation in parallel</p>
+      </div>
+
+      <p>
+        Then it's another attention block, another MLP, and so on. Many alternating layers stacked
+        deep (that's the "deep" in deep learning). After all those layers, the information needed to
+        predict the next token gets packed into the last vector, which goes through one final step to
+        produce a probability distribution over all possible next tokens.
+      </p>
+
+      <!-- SECTION: Premise of Deep Learning -->
+      <h2>Premise of Deep Learning</h2>
+      <p>
+        In machine learning, the data is what ultimately determines how a program behaves. Think
+        of a model as a function with a bunch of adjustable knobs and dials. Your job as the engineer
+        isn't to set those dials by hand, <span class="highlight">but to find a procedure that tunes them automatically from data.</span>
+      </p>
+
+      <div class="image">
+        <img src="images/img5.png" alt="Model as a set of parameters being tuned from labeled data" />
+        <p class="image-caption">Training tunes parameters using data</p>
+      </div>
+
+      <p>
+        The simplest form of machine learning is linear regression: fit a line (determined by slope and its
+        y-intercept) to data points to predict future outputs from inputs.
+      </p>
+
+      <div class="image">
+        <img src="images/img6.png" alt="Points with a best-fit line predicting outputs" />
+        <p class="image-caption">A familiar warm-up: fitting a line (simple ML)</p>
+      </div>
+
+      <p>
+        Deep learning uses neural networks, which scale to absurd complexity. GPT-3 had
+        175 billion parameters. The input must be formatted as an array of numbers (a <em>tensor</em>),
+        and the data gets progressively transformed through many layers until you get the final output.
+        The parameters are usually called <span class="highlight">weights,</span> because most of the
+        math boils down to weighted sums, packaged as matrix-vector products.
+      </p>
+
+      <div class="image">
+        <img src="images/img7.png" alt="Data structured as arrays flowing through layers of matrix multiplications" />
+        <p class="image-caption">Data flows through layers as arrays of numbers</p>
+      </div>
+
+      <p>
+        GPT-3's 175 billion weights are organized into about 28,000 matrices across 8 categories.
+        Moving forward, we'll distinguish between the <strong>weights</strong> of the model
+        (the learned parameters, shown in blue/red) and the <strong>data</strong> being processed
+        (the input, shown in grey).
+      </p>
+
+      <div class="image">
+        <img src="images/img8.png" alt="Distinction between model weights and data being processed" />
+        <p class="image-caption">Weights (blue/red) vs. data being processed (grey)</p>
+      </div>
+
+      <!-- SECTION: Embedding Matrix -->
+      <h2>Embedding Matrix</h2>
+      <p>
+        The model has a predefined vocabulary: a list of all possible tokens, roughly 50,000 of them.
+        The first matrix in the transformer, the <span class="highlight">embedding matrix</span> $W_E$,
+        has one column per token. Each column determines what vector that token maps to. Like every
+        other matrix we'll see, its values start random and get refined during training.
+      </p>
+
+      <div class="image">
+        <img src="images/img9.png" alt="Large embedding matrix with columns corresponding to vocabulary tokens" />
+        <p class="image-caption">Embedding matrix: token id &rarr; vector</p>
+      </div>
+
+      <p>
+        In GPT-3, the embedding dimension is 12,288, so each token becomes a 12,288-dimensional vector.
+        With a vocabulary of 50,257 tokens, the embedding matrix alone accounts for
+        <strong>617,558,016 weights</strong>.
+      </p>
+
+      <!-- SECTION: Geometry of Word Embeddings -->
+      <h2>Geometry of Word Embeddings</h2>
+      <p>
+        During training, models tend to settle on embeddings where <span class="highlight">directions</span>
+        in the space encode meaning. Searching for the words whose embeddings are closest to "tower" reveals
+        words with a similar vibe.
+      </p>
+
+      <div class="image">
+        <img src="images/img10.png" alt="Nearest-neighbor words in embedding space clustered around tower" />
+        <p class="image-caption">Similar meanings tend to cluster in embedding space</p>
+      </div>
+
+      <p>
+        A classic example: the difference between the vectors for <em>woman</em> and <em>man</em> is similar to the
+        difference between <em>king</em> and <em>queen</em>. If you take "king," add the direction of "woman" minus
+        "man," you land near "queen." Family relations illustrate the idea even better.
+      </p>
+
+      <div class="image">
+        <img src="images/img11.png" alt="Vector arithmetic: king minus man plus woman equals queen" />
+        <p class="image-caption">Embedding directions can encode relationships</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img12.png" alt="Gender direction encoded consistently across family relation words" />
+        <p class="image-caption">One direction in embedding space encodes gender information</p>
+      </div>
+
+      <div class="image">
+        <img src="images/img13.png" alt="Italy minus Germany plus Hitler approximately equals Mussolini" />
+        <p class="image-caption">Directions can encode nationality and historical roles</p>
+      </div>
+
+      <!-- SECTION: Dot Product -->
+      <h2>Dot Product</h2>
+      <p>
+        Remember <span class="highlight">dot products?</span> I certainly hope so. In either case, let's recap how they are used to represent alignment
+        between vectors. They are:
+      </p>
+      <ul>
+        <li><span class="highlight">positive</span> when they point the same way,</li>
+        <li><span class="highlight">zero</span> when perpendicular,</li>
+        <li><span class="highlight">negative</span> when they point in opposite directions.</li>
+      </ul>
+
+      <div class="image">
+        <img src="images/img14.png" alt="Dot product geometry: positive when aligned, zero when perpendicular, negative when opposing" />
+        <p class="image-caption">Dot products measure alignment between vectors</p>
+      </div>
+
+      <p>
+        For example, suppose we test whether "cats" minus "cat" represents a plurality direction.
+        Taking the dot product of this difference vector with various singular and plural nouns shows
+        that plural words consistently score higher. Dot it with "one," "two," "three," "four" and
+        you get increasing values, as if the model actually quantifies how plural a word is.
+      </p>
+
+      <div class="image">
+        <img src="images/img15.png" alt="Dot product test showing plural nouns score higher on the plurality direction" />
+        <p class="image-caption">Dot products can test for semantic directions like plurality</p>
+      </div>
+
+      <!-- SECTION: Beyond Words -->
+      <h2>Beyond Words</h2>
+      <p>
+        Inside a transformer, these vectors don't just represent individual words. They also encode
+        position, and more importantly, they soak in context as they pass through layers. A vector
+        that starts as the embedding of "king" might, after several layers, encode a king who lives
+        in Scotland, murdered his way to the throne, and speaks in Shakespearean English.
+      </p>
+
+      <p>
+        The model can only look at a fixed number of vectors at a time, known as its
+        <span class="highlight">context size.</span> For GPT-3, that was 2,048 tokens. This hard
+        limit on how much text the model can "see" is why early versions of ChatGPT would lose the
+        thread in long conversations.
+      </p>
+
+      <div class="image">
+        <img src="images/img16.png" alt="Array of 2048 token vectors each with 12,288 dimensions flowing through the network" />
+        <p class="image-caption">Context window: the fixed number of tokens the model can see at once</p>
+      </div>
+
+      <!-- SECTION: Unembedding -->
+      <h2>Unembedding</h2>
+      <p>
+        At the very end of the transformer, the model needs to turn its internal vectors back into a
+        prediction. For instance, if the context includes words like "Harry Potter" and the immediately
+        preceding text is "least favorite Professor," a well-trained network should assign a high probability
+        to "Snape."
+      </p>
+
+      <div class="image">
+        <img src="images/img17.png" alt="Snape predicted as the most likely next word given Harry Potter context" />
+        <p class="image-caption">The model predicts the next token from context</p>
+      </div>
+
+      <p>
+        This works via an <span class="highlight">unembedding matrix</span> $W_U$ that maps the last
+        vector in the context to a list of ~50,000 values, one per vocabulary token. The matrix has
+        50,257 rows and 12,288 columns, adding another ~617 million parameters. Combined with the
+        embedding matrix, that's already over a billion parameters. A small but real fraction of
+        GPT-3's 175 billion total.
+      </p>
+
+      <div class="image">
+        <img src="images/img18.png" alt="Unembedding matrix mapping the last vector to vocabulary-sized output" />
+        <p class="image-caption">Unembedding matrix: vector &rarr; score for each token</p>
+      </div>
+
+      <!-- SECTION: Softmax -->
+      <h2>Softmax</h2>
+      <p>
+        For a valid <span class="highlight">probability distribution,</span> all values need to be between 0 and 1 and sum to 1.
+        The raw outputs of a matrix-vector product don't satisfy either constraint: values can be
+        negative, greater than 1, and they certainly don't sum to 1.
+        <span class="highlight">Softmax</span> fixes this. It turns any list of numbers into a valid
+        distribution where the largest values end up near 1 and smaller values end up near 0.
+      </p>
+
+      <div class="image">
+        <img src="images/img19.png" alt="Softmax converting arbitrary scores into probabilities that sum to 1" />
+        <p class="image-caption">Softmax maps raw scores &rarr; probabilities</p>
+      </div>
+
+      <div class="math-block">
+        $$\mathrm{softmax}(\mathbf{x})_i = \frac{e^{x_i}}{\sum_j e^{x_j}}$$
+      </div>
+
+      <p>
+        The mechanics: raise $e$ to the power of each number (making everything positive), then divide
+        each term by the total (so the values sum to 1). If one entry is much larger than the rest,
+        its output is practically 1, and sampling from the distribution is basically just picking the max.
+      </p>
+
+      <h3>Temperature</h3>
+      <p>
+        A <span class="highlight">temperature</span> parameter $T$ reshapes the distribution. Higher
+        $T$ spreads weight more evenly across values (more randomness). Lower $T$ concentrates weight
+        on the top values (more greedy). At $T = 0$, it's purely deterministic: all weight goes to the max.
+      </p>
+
+      <div class="math-block">
+        $$\mathrm{softmax}\!\left(\frac{\mathbf{x}}{T}\right)$$
+      </div>
+
+      <h3>Logits</h3>
+      <p>
+        The raw, unnormalized scores fed into softmax are called <span class="highlight">logits.</span>
+        When you feed text through the network and multiply by the unembedding matrix, the resulting
+        values are the logits for the next-token prediction.
+      </p>
+
+      <!-- SECTION: Conclusion -->
+      <h2>Conclusion</h2>
+      <p>
+        You now have the building blocks: embeddings that encode meaning as vectors, dot products
+        that measure similarity, softmax that turns scores into probabilities, and matrices full
+        of learnable weights tying it all together.
+      </p>
+    </article>
+
+    <footer>
+      <p>
+        Content adapted from 3Blue1Brown's Deep Learning series (Chapter 5).
+      </p>
+      <p>&copy; 2026 Grant Sanderson</p>
+    </footer>
+  </div>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    (function () {
+      const toggle = document.querySelector(".theme-toggle");
+      const root = document.documentElement;
+
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) root.setAttribute("data-theme", savedTheme);
+
+      toggle.addEventListener("click", () => {
+        const currentTheme = root.getAttribute("data-theme");
+        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+        let newTheme;
+        if (currentTheme === "dark") newTheme = "light";
+        else if (currentTheme === "light") newTheme = "dark";
+        else newTheme = systemPrefersDark ? "light" : "dark";
+
+        root.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+      });
+    })();
+  </script>
+</body>
+</html>
