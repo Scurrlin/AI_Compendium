@@ -17,7 +17,7 @@
     --bg-white: #0f172a;
     --bg-light: #1e293b;
     --border-light: #334155;
-    --highlight-bg: #854d0e;
+    --highlight-bg: #E84A2F;
     --shadow-color: rgba(0, 0, 0, 0.4);
 }
 
@@ -30,7 +30,7 @@
         --bg-white: #0f172a;
         --bg-light: #1e293b;
         --border-light: #334155;
-        --highlight-bg: #854d0e;
+        --highlight-bg: #E84A2F;
         --shadow-color: rgba(0, 0, 0, 0.4);
     }
 }
