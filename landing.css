@@ -170,7 +170,7 @@ header p {
 .topic-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px var(--shadow-color);
-    border-color: var(--accent-blue);
+    border-color: #E84A2F;
 }
 
 .topic-card:active {
@@ -186,7 +186,7 @@ header p {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background-color: var(--accent-blue);
+    background-color: #E84A2F;
     color: #ffffff;
     font-family: 'Helvetica Neue', Arial, sans-serif;
     font-size: 16px;
