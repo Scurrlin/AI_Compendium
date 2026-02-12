@@ -138,6 +138,24 @@ header p {
     margin-top: 8px;
 }
 
+/* Hero Image */
+.hero-img {
+    display: block;
+    width: 60%;
+    max-width: 360px;
+    height: auto;
+    margin: 24px auto 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    border: 1px solid var(--border-light);
+}
+
+@media (max-width: 600px) {
+    .hero-img {
+        width: 80%;
+    }
+}
+
 /* ── Topic Card Grid ─────────────────────────────────────────── */
 .topic-grid {
     display: grid;
