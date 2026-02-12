@@ -291,3 +291,31 @@ footer a:hover {
     opacity: 0.8;
     text-decoration: underline;
 }
+
+/* Home Button */
+.home-button {
+    display: inline-block;
+    margin-bottom: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 8px;
+}
+
+.home-button:hover {
+    transform: scale(1.08);
+    opacity: 1;
+    text-decoration: none;
+}
+
+.home-button img {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    border: 1px solid var(--border-light);
+    transition: box-shadow 0.2s ease;
+}
+
+.home-button:hover img {
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
