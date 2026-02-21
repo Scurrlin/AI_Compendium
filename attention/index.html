@@ -48,7 +48,7 @@
       <p>
         Last chapter we walked through the internals of a transformer. Now let's focus on
         the mechanism that makes the whole thing work:
-        <span class="highlight">attention</span>. The name comes from the 2017 paper
+        <span class="highlight">attention.</span> The name comes from the 2017 paper
         <em>"Attention Is All You Need,"</em> and the title is barely an exaggeration.
       </p>
 
@@ -104,7 +104,7 @@
         Attention can move information across long distances. Remember, only the
         <em>last</em> vector in the sequence drives next-token prediction. If the input is
         an entire mystery novel ending with <em>"Therefore the murderer was&hellip;"</em>,
-        that final vector needs to encode everything relevant from the full <span class="highlight">context window</span>.
+        that final vector needs to encode everything relevant from the full <span class="highlight">context window.</span>
       </p>
 
       <div class="image">
@@ -127,7 +127,7 @@
       <!-- ============================================================ -->
       <h2>The Attention Pattern</h2>
       <p>
-        We'll start with a <span class="highlight">single head of attention</span>.
+        We'll start with a <span class="highlight">single head of attention.</span>
         Later we'll see how the full attention block runs many heads in parallel.
       </p>
 
@@ -164,7 +164,7 @@
       <!-- ============================================================ -->
       <h2>Queries</h2>
       <p>
-        Each token produces a <span class="highlight">query</span> vector, conceptually asking:
+        Each token produces a <span class="highlight">query vector,</span> conceptually asking:
         <strong>"What am I looking for in the surrounding context?"</strong>
       </p>
 
@@ -209,7 +209,7 @@
       <h2>Keys</h2>
       <p>
         At the same time, a second learned matrix, the <span class="highlight">key matrix</span>
-        ($W_K$), maps each embedding to a <span class="highlight">key</span> vector.
+        ($W_K$), maps each embedding to a <span class="highlight">key vector.</span> 
         Think of keys as potential answers to the queries.
       </p>
 
@@ -237,7 +237,7 @@
       <!-- ============================================================ -->
       <h2>Dot Products Create Relevance Scores</h2>
       <p>
-        For each query-key pair we compute a <span class="highlight">dot product</span>. Larger dot product = stronger
+        For each query-key pair we compute a <span class="highlight">dot product.</span> Larger dot product = stronger
         alignment = higher relevance.
       </p>
 
@@ -341,7 +341,7 @@
 
       <p>
         The attention pattern is $n \times n$ (one row and column per token), so it grows
-        with the <em>square</em> of the <span class="highlight">context length</span>. This is why scaling context windows
+        with the <em>square</em> of the <span class="highlight">context length.</span> This is why scaling context windows
         is expensive, and why there's so much research into efficient attention.
       </p>
 
@@ -367,7 +367,7 @@
 
       <p>
         A third learned matrix, the <span class="highlight">value matrix</span> $W_V$, maps
-        each embedding to a <span class="highlight">value vector</span>.
+        each embedding to a <span class="highlight">value vector.</span>
       </p>
 
       <div class="math-block">
@@ -414,7 +414,7 @@
 
       <p>
         This applies across all columns, producing a full sequence of refined embeddings
-        out the other end. The whole process is a <strong>single head of attention</strong>,
+        out the other end. The whole process is a <strong>single head of attention,</strong>
         parameterized by three learned matrices: $W_Q$, $W_K$, and $W_V$.
       </p>
 
