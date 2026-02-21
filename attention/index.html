@@ -443,7 +443,7 @@
         ~151M parameters. Way too many. In practice, the value map is factored into
         two smaller matrices: one ($\text{Value}_\downarrow$) maps the embedding down
         to the 128-dimensional key-query space, and a second ($\text{Value}_\uparrow$) maps
-        it back up. This makes it a <span class="highlight">low-rank transformation</span>,
+        it back up. This makes it a <span class="highlight">low-rank transformation,</span>
         keeping the parameter count balanced with the key and query matrices.
       </p>
 
@@ -500,7 +500,7 @@
 
       <p>
         Each type of contextual update needs its own $W_Q$, $W_K$, and $W_V$ matrices.
-        A full attention block runs <span class="highlight">multi-headed attention</span>:
+        A full attention block runs <span class="highlight">multi-headed attention:</span>
         many heads in parallel, each with distinct parameters capturing different patterns.
         GPT-3 uses 96 attention heads per block.
       </p>
@@ -584,7 +584,7 @@
 
       <p>
         A big part of attention's success isn't any specific behavior it enables. It's
-        that the whole operation is massively <span class="highlight">parallelizable</span>. It runs on GPUs
+        that the whole operation is massively <span class="highlight">parallelizable.</span> It runs on GPUs
         incredibly efficiently, and scale alone has driven enormous improvements in
         what these models can do.
       </p>
