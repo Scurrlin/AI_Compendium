@@ -120,6 +120,7 @@ blockquote {
     padding: 20px 24px;
     margin: 32px 0;
     font-style: italic;
+    text-align: center;
 }
 
 blockquote strong {
